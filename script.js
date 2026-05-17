@@ -309,7 +309,14 @@ const fixedTasks = [
   title: "DOTW was posted",
   day: "Tuesday",
   category: "Weekly Tasks"
-},{
+},
+{
+  id: "tue-weekly-5",
+  title: "G4S collection",
+  day: "Tuesday",
+  category: "Weekly Tasks"
+},
+{
   id: "wed-weekly-1",
   title: "Brakes order for Friday before 11am",
   day: "Wednesday",
