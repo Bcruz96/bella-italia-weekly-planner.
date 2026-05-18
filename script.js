@@ -288,7 +288,7 @@ const fixedTasks = [
 
 {
   id: "tue-weekly-1",
-  title: "MK delivery",
+  title: "Matthew Clark delivery",
   day: "Tuesday",
   category: "Weekly Tasks"
 },
@@ -325,7 +325,7 @@ const fixedTasks = [
 
 {
   id: "thu-weekly-1",
-  title: "MK order for Friday before 11am",
+  title: "Matthew Clark order for Friday before 11am",
   day: "Thursday",
   category: "Weekly Tasks"
 },
@@ -343,7 +343,7 @@ const fixedTasks = [
 },
 {
   id: "fri-weekly-1",
-  title: "MK delivery",
+  title: "Matthew Clark delivery",
   day: "Friday",
   category: "Weekly Tasks"
 },
@@ -608,7 +608,7 @@ function getTasksForSelectedDay() {
       };
     });
 
-  return [...fixedForDay, ...manualForDay];
+  return [...manualForDay, ...fixedForDay];
 }
 
 function updateProgress(dayTasks) {
