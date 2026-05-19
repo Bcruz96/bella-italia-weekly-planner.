@@ -26,6 +26,7 @@ const nextDayButton = document.getElementById("nextDay");
 
 const previousLabel = document.getElementById("previousLabel");
 const nextLabel = document.getElementById("nextLabel");
+const todayButton = document.getElementById("todayButton");
 const monthTitle = document.getElementById("monthTitle");
 
 const dayCard = document.getElementById("dayCard");
@@ -661,13 +662,17 @@ function renderTaskGroups() {
     const groupElement = document.createElement("div");
     groupElement.classList.add("task-group");
 
-    const isDanger = completed < total;
-    const headerClass = isDanger
-      ? "task-group-header danger"
-      : "task-group-header";
+    const groupIsComplete = total > 0 && completed === total;
+
+    const headerClass = groupIsComplete
+    ? "task-group-header completed"
+    : "task-group-header danger";
+    const headerStyle = groupIsComplete
+    ? 'style="background: linear-gradient(145deg, #1f7a68 0%, #166b59 50%, #0f4f43 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.20), inset 0 -10px 18px rgba(0,0,0,0.08), 0 10px 22px rgba(22,107,89,0.16);"'
+   : "";
 
     groupElement.innerHTML = `
-      <div class="${headerClass}">
+    <div class="${headerClass}">
         <h3>${category}</h3>
 
         <div class="group-progress">
@@ -828,5 +833,87 @@ function renderApp() {
   updateDateInformation();
   renderTaskGroups();
 }
+function getMondayOfWeek(date) {
+  const selectedDate = new Date(date);
+  const day = selectedDate.getDay();
+  const difference = day === 0 ? -6 : 1 - day;
 
+  selectedDate.setDate(selectedDate.getDate() + difference);
+  selectedDate.setHours(0, 0, 0, 0);
+
+  return selectedDate;
+}
+
+function getMondayFromDate(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+
+  // Sunday = 0, Monday = 1
+  const diff = day === 0 ? -6 : 1 - day;
+
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+
+  return d;
+}
+
+function goToToday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const realMonday = new Date(today);
+  const dayOfWeek = realMonday.getDay();
+
+  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
+  realMonday.setDate(realMonday.getDate() + diffToMonday);
+  realMonday.setHours(0, 0, 0, 0);
+
+  weekStart.setTime(realMonday.getTime());
+
+  selectedDayIndex = Math.round(
+    (today.getTime() - realMonday.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  renderApp();
+}
+
+todayButton.addEventListener("click", goToToday);
+
+// First load
 loadDataFromSupabase();
+
+// Live auto refresh
+let isLiveRefreshing = false;
+
+async function refreshLiveData() {
+  if (isLiveRefreshing) return;
+
+  isLiveRefreshing = true;
+
+  try {
+    await loadDataFromSupabase();
+    console.log("Live data refreshed:", new Date().toLocaleTimeString());
+  } catch (error) {
+    console.error("Live refresh error:", error);
+  } finally {
+    isLiveRefreshing = false;
+  }
+}
+
+// Refresh every 10 seconds while app is open
+setInterval(() => {
+  if (!document.hidden) {
+    refreshLiveData();
+  }
+}, 10000);
+
+// Refresh immediately when user comes back to the app
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    refreshLiveData();
+  }
+});
+
+// Extra refresh when browser/tab gets focus
+window.addEventListener("focus", refreshLiveData);
